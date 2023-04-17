@@ -1,0 +1,123 @@
+CREATE TABLE `db_food`.`tb_customer` (`cust_id` INT(5) NOT NULL AUTO_INCREMENT , `username` VARCHAR(20) NOT NULL , `address` VARCHAR(100) NOT NULL , `contact` INT(12) NOT NULL , `password` VARCHAR(8) NOT NULL , PRIMARY KEY (`cust_id`)) ENGINE = InnoDB;
+CREATE TABLE `db_food`.`tb_payment` (`payment_id` INT NOT NULL AUTO_INCREMENT , `cust_id` INT NOT NULL , `food_id` INT NOT NULL , `amount` INT NOT NULL , `method` TEXT NOT NULL , `status` BOOLEAN NOT NULL , `date` DATE NOT NULL , PRIMARY KEY (`payment_id`)) ENGINE = InnoDB;
+CREATE TABLE `db_food`.`tb_food` (`food_id` INT NOT NULL AUTO_INCREMENT , `category_id` INT NOT NULL , `foodname` VARCHAR NOT NULL , `price` INT NOT NULL , `status` TEXT NOT NULL , `stock_remain` INT NOT NULL , `quantity` INT NOT NULL , PRIMARY KEY (`food_id`)) ENGINE = InnoDB
+CREATE TABLE `db_food`.`tb_delivery` (`delivery_id` INT NOT NULL AUTO_INCREMENT , `cust_id` INT NOT NULL , `status` TEXT NOT NULL , PRIMARY KEY (`delivery_id`)) ENGINE = InnoDB;
+CREATE TABLE `db_food`.`tb_category` (`category_id` INT(5) NOT NULL AUTO_INCREMENT , `category_name` VARCHAR(10) NOT NULL , `description` VARCHAR(100) NOT NULL , PRIMARY KEY (`category_id`)) ENGINE = InnoDB;
+ALTER TABLE tb_orders
+ADD FOREIGN KEY (food_id) REFERENCES tb_food(food_id);
+ALTER TABLE tb_delivery
+ADD FOREIGN KEY (cust_id) REFERENCES tb_customer(cust_id);
+ALTER TABLE tb_payment
+ADD FOREIGN KEY (food_id_id) REFERENCES tb_food(food_id);
+ALTER TABLE tb_food
+ADD FOREIGN KEY (category_id) REFERENCES tb_category(category_id);
+INSERT INTO `tb_customer` (`cust_id`, `username`, `address`, `contact`, `password`) VALUES ('00000', 'sri', 'v nagar,6 th street,tirupur.641604.', '9791268770', 'sri');
+INSERT INTO `tb_food` (`food_id`, `category_id`, `foodname`, `price`, `status`, `stock_remain`, `quantity`) VALUES ('00001', '1', 'Dal rice', '10', 'Dal-rice(100g) consists of thoordal sambar and rice with ghee.\r\n', '30', '1');
+INSERT INTO `tb_food` (`food_id`, `category_id`, `foodname`, `price`, `status`, `stock_remain`, `quantity`) VALUES ('00002', '2', 'Dosa(set)', '20', 'Dosa(set): Dosa 2 nos with coconut chutney and dhal sambar.', '30', '1'), ('00003', '2', 'Sooji upma', '30', 'Sooji upma with peanut chutney: light weight breakfast.', '20', '1');
+INSERT INTO `tb_delivery` (`delivery_id`, `cust_id`, `status`) VALUES ('00001', '2', 'delivered');
+INSERT INTO `tb_payment` (`payment_id`, `cust_id`, `food_id`, `amount`, `method`, `status`, `date`) VALUES ('00001', '2', '1', '20', 'COD', 'PAID', '2023-04-15');
+INSERT INTO `tb_orders` (`order_id`, `cust_id`, `food_id`, `quantity`, `payment_id`, `delivery_id`, `date`) VALUES ('1', '2', '1', '1', '1', '1', '2023-04-15');
+
+
+
+  <div class="jumbotron">
+                <h1 class="display-4">Login</h1>
+                <p class="lead"></p>
+                <hr class="my-4">
+                <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+                <p class="lead">
+                  <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+                </p>
+              </div>
+               <label for="cust_id">cust_id:</label>
+                <input type="text" name="cust_id" id="cust_id"></p><p>
+
+                $cust_id=$_REQUEST['cust_id'];
+
+                '$cust_id',
+
+                //working with login form
+                <?php
+include("config/db.php");//database to db
+$successful = "false";
+session_start();
+$error = "";
+if(isset($_POST['login'])){
+	$error = "none";
+	$username = mysqli_real_escape_string($conn, $_POST['username']);
+	 $password = mysqli_real_escape_string($conn, $_POST['password']);
+    if(empty($username) || empty($password)){
+		sleep(1);
+        $error = "! Username Or password is empty";
+    }
+    else{
+        $sql = "SELECT * FROM users WHERE username = '$username'";
+        $result = mysqli_query($conn, $sql);
+        $resultCheck = mysqli_num_rows($result);
+        if($resultCheck < 1){
+          $error = "! User does not exist";
+        }else{
+            if($row = mysqli_fetch_assoc($result)){
+                if(!($password == $row['password'])){
+					sleep(1);
+                    $error = "! Password is incorrect";
+                }else if($password == $row['password']){
+                        $_SESSION['id'] = $row['id'];
+                        $_SESSION['username'] = $row['username'];
+
+						$successful = "done";
+						$error = "none";
+						sleep(7);
+						if($row['type']=="sadmin"){
+                            header("Location: modules/sadmin/");
+                            exit(0);
+						}
+						if($row['type']=="admin"){
+							header("Location: modules/admin/");
+                            exit(0);
+						}
+						if($row['type']=="teacher"){
+							header("Location: modules/teacher/");
+                            exit(0);
+						}
+						if($row['type']=="student"){
+							header("Location: modules/student/");
+                            exit(0);
+						}
+						if($row['type']=="parent"){
+						    header("Location: modules/parent/");
+                            exit(0);
+                        }
+                }
+            }
+        }
+    }
+}
+if(isset($_SESSION['id'])){
+    $username1 = $_SESSION['username'];
+    $sql = "SELECT * FROM users WHERE username = '$username1'";
+    $result = mysqli_query($conn, $sql);
+    $resultCheck = mysqli_num_rows($result);
+    $row = mysqli_fetch_assoc($result);
+    if($row['type']=="sadmin"){
+        header("Location: modules/sadmin/");
+        exit(0);
+    }
+    if($row['type']=="admin"){
+        header("Location: modules/admin/");
+        exit(0);
+    }
+    if($row['type']=="teacher"){
+        header("Location: modules/teacher/");
+        exit(0);
+    }
+    if($row['type']=="student"){
+        header("Location: modules/student/");
+        exit(0);
+    }
+    if($row['type']=="parent"){
+        header("Location: modules/parent/");
+        exit(0);
+    }
+}else{
+    ?>
